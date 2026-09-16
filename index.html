@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>132 Brew Economics | AppADay</title>
+<meta name="description" content="Price out a homebrew batch. Enter ingredient costs, batch volume, and loss, then compare your cost per six pack against store shelf pricing and project annual savings.">
+<meta property="og:title" content="132 Brew Economics | AppADay">
+<meta property="og:description" content="Price out a homebrew batch and compare your cost per six pack against the shelf.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://augustineiacopelli.github.io/appaday/og-image.png?v=1">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="132 Brew Economics | AppADay">
+<meta name="twitter:description" content="Price out a homebrew batch and compare your cost per six pack against the shelf.">
+<meta name="twitter:image" content="https://augustineiacopelli.github.io/appaday/og-image.png?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --base: #17100a;
+    --panel: #241a11;
+    --border: #3b2b1c;
+    --amber: #e8a33d;
+    --cream: #f4e8d8;
+    --muted: #b39b80;
+    --hop: #7fa650;
+    --clay: #c0614a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--base);
+    color: var(--cream);
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Bitter', Georgia, serif;
+    margin: 0;
+  }
+
+  a { color: var(--amber); }
+
+  .bar-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+
+  .num-badge {
+    font-family: 'Bitter', Georgia, serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    color: var(--base);
+    background: var(--amber);
+    border-radius: 6px;
+    padding: 4px 10px;
+  }
+
+  .bar-head h1 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .backlink {
+    margin-left: auto;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .backlink:hover { border-color: var(--amber); }
+
+  main {
+    flex: 1;
+    width: 100%;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .top-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .panel h2 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+  }
+
+  label, .lbl {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    background: var(--base);
+    color: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 1rem;
+  }
+
+  input:focus, select:focus, button:focus {
+    outline: 2px solid var(--amber);
+    outline-offset: 1px;
+  }
+
+  .ing-row {
+    display: grid;
+    grid-template-columns: 1fr 108px 44px;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  .ing-row .cost-wrap { position: relative; }
+
+  .ing-row .cost-wrap span {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.95rem;
+    pointer-events: none;
+  }
+
+  .ing-row .cost-wrap input { padding-left: 22px; }
+
+  .btn {
+    min-height: 44px;
+    padding: 10px 14px;
+    background: var(--base);
+    color: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
+
+  .btn:disabled { opacity: 0.35; cursor: default; }
+
+  .btn-remove {
+    min-width: 44px;
+    padding: 10px 0;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  .btn-add { width: 100%; margin-top: 4px; }
+
+  .total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .total-line .lbl { margin-bottom: 0; }
+
+  .big-num {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: var(--amber);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .field { margin-bottom: 12px; }
+
+  .field-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    min-height: 44px;
+    accent-color: var(--amber);
+    background: transparent;
+  }
+
+  .range-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .range-read {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    min-width: 58px;
+    text-align: right;
+    color: var(--amber);
+  }
+
+  .derived {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .derived div { text-align: center; }
+
+  .derived .lbl { font-size: 0.66rem; letter-spacing: 0.05em; }
+
+  .derived strong {
+    display: block;
+    font-weight: 600;
+    font-size: 1.2rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .presets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .preset.active {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: var(--base);
+  }
+
+  .bar-block { margin-bottom: 16px; }
+
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .bar-label span:first-child {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .bar-label span:last-child {
+    font-weight: 600;
+    font-size: 1.15rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .track {
+    height: 18px;
+    background: var(--base);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    overflow: hidden;
+  }
+
+  .fill {
+    height: 100%;
+    width: 0;
+    border-radius: 9px 0 0 9px;
+    transition: width 0.25s ease;
+  }
+
+  #barHome { background: var(--hop); }
+  #barBench { background: var(--clay); }
+
+  .sub-line {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .savings-head { text-align: center; margin-bottom: 14px; }
+
+  .savings-head strong {
+    display: block;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 2.2rem;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pos { color: var(--hop); }
+  .neg { color: var(--clay); }
+
+  .annual {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  #toggleExtras {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #toggleExtras .chev { color: var(--amber); font-size: 0.8rem; }
+
+  #extrasBody { display: none; margin-top: 14px; }
+  #extrasBody.open { display: block; }
+
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    margin: 4px 0 4px;
+  }
+
+  .check-row input { width: 22px; height: 22px; accent-color: var(--amber); }
+
+  .check-row label {
+    margin-bottom: 0;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.92rem;
+    color: var(--cream);
+    font-weight: 400;
+  }
+
+  .note {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 10px 0 0;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    padding: 16px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  footer a { font-weight: 600; text-decoration: none; }
+
+  @media (min-width: 720px) {
+    main { padding: 24px; }
+    .top-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="bar-head">
+  <span class="num-badge">132</span>
+  <h1>Brew Economics</h1>
+  <a class="backlink" href="https://augustineiacopelli.github.io/appaday/">AppADay</a>
+</header>
+
+<main id="calcForm">
+
+  <div class="top-grid">
+
+    <section class="panel" id="ingredientsPanel">
+      <h2>Ingredients</h2>
+      <div id="ingredientList"></div>
+      <button type="button" class="btn btn-add" id="addRow">+ Add ingredient</button>
+      <div class="total-line">
+        <span class="lbl">Ingredient total</span>
+        <span class="big-num" id="batchTotal">$0.00</span>
+      </div>
+    </section>
+
+    <section class="panel" id="yieldPanel">
+      <h2>Batch Yield</h2>
+      <div class="field-pair">
+        <div class="field">
+          <label for="batchVolume">Volume</label>
+          <input type="number" id="batchVolume" inputmode="decimal" step="0.25" min="0" value="5">
+        </div>
+        <div class="field">
+          <label for="volumeUnit">Unit</label>
+          <select id="volumeUnit">
+            <option value="gallons">Gallons</option>
+            <option value="pints">Pints</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="lossPct">Loss to trub and transfer</label>
+        <div class="range-row">
+          <input type="range" id="lossPct" min="0" max="40" step="1" value="10">
+          <span class="range-read" id="lossRead">10%</span>
+        </div>
+      </div>
+      <div class="derived">
+        <div>
+          <span class="lbl">Pints</span>
+          <strong id="drinkablePints">0</strong>
+        </div>
+        <div>
+          <span class="lbl">Bottles</span>
+          <strong id="bottleCount">0</strong>
+        </div>
+        <div>
+          <span class="lbl">Six packs</span>
+          <strong id="sixPackCount">0</strong>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="panel" id="benchmarkPanel">
+    <h2>Shelf Benchmark</h2>
+    <div class="field">
+      <label for="benchmarkPrice">Store price per six pack</label>
+      <input type="number" id="benchmarkPrice" inputmode="decimal" step="0.01" min="0" value="12.00">
+    </div>
+    <div class="presets">
+      <button type="button" class="btn preset" data-price="9">$9</button>
+      <button type="button" class="btn preset" data-price="12">$12</button>
+      <button type="button" class="btn preset" data-price="16">$16</button>
+    </div>
+  </section>
+
+  <section class="panel" id="comparisonPanel">
+    <h2>Cost Per Six Pack</h2>
+    <div class="bar-block">
+      <div class="bar-label"><span>Homebrew</span><span id="homeSixLabel">$0.00</span></div>
+      <div class="track"><div class="fill" id="barHome"></div></div>
+      <p class="sub-line" id="homePintLine">Per pint: $0.00</p>
+    </div>
+    <div class="bar-block">
+      <div class="bar-label"><span>Store</span><span id="benchSixLabel">$0.00</span></div>
+      <div class="track"><div class="fill" id="barBench"></div></div>
+      <p class="sub-line" id="benchPintLine">Per pint: $0.00</p>
+    </div>
+  </section>
+
+  <section class="panel" id="savingsPanel">
+    <h2>Savings</h2>
+    <div class="savings-head">
+      <span class="lbl">Per batch</span>
+      <strong id="savingsPerBatch">$0.00</strong>
+      <span class="sub-line" id="savingsPercent">0% cheaper than the shelf</span>
+    </div>
+    <div class="field">
+      <label for="batchesPerYear">Batches per year</label>
+      <input type="number" id="batchesPerYear" inputmode="numeric" step="1" min="0" value="6">
+    </div>
+    <div class="annual">
+      <span class="lbl">Annual savings</span>
+      <span class="big-num" id="annualSavings">$0.00</span>
+    </div>
+  </section>
+
+  <section class="panel" id="extrasPanel">
+    <button type="button" class="btn" id="toggleExtras" aria-expanded="false" aria-controls="extrasBody">
+      <span>Expanded costs</span>
+      <span class="chev" id="extrasChev">SHOW</span>
+    </button>
+    <div id="extrasBody">
+      <div class="field-pair">
+        <div class="field">
+          <label for="consumables">Consumables</label>
+          <input type="number" id="consumables" inputmode="decimal" step="0.01" min="0" value="0">
+        </div>
+        <div class="field">
+          <label for="utilities">Utilities</label>
+          <input type="number" id="utilities" inputmode="decimal" step="0.01" min="0" value="0">
+        </div>
+      </div>
+      <div class="field-pair">
+        <div class="field">
+          <label for="equipmentCost">Equipment cost</label>
+          <input type="number" id="equipmentCost" inputmode="decimal" step="0.01" min="0" value="0">
+        </div>
+        <div class="field">
+          <label for="equipmentLifespan">Lifespan in batches</label>
+          <input type="number" id="equipmentLifespan" inputmode="numeric" step="1" min="0" value="20">
+        </div>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="applyExtras" checked>
+        <label for="applyExtras">Fold these into cost per batch</label>
+      </div>
+      <div class="annual">
+        <span class="lbl">Equipment break even</span>
+        <span class="big-num" id="breakEven">--</span>
+      </div>
+      <p class="note">Consumables covers caps, sanitizer, and priming sugar. Utilities covers propane, water, and power for one brew day.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  App 132 in the AppADay series.
+  <a href="https://augustineiacopelli.github.io/appaday/">Back to the portfolio</a>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'appaday-132-brew-economics';
+  var PINTS_PER_GALLON = 8;
+  var OZ_PER_PINT = 16;
+  var OZ_PER_BOTTLE = 12;
+  var BOTTLES_PER_SIX = 6;
+  var DASH = '--';
+
+  var STATE = {
+    rows: [
+      { id: 1, name: 'Grain', cost: 32.00 },
+      { id: 2, name: 'Hops', cost: 12.00 },
+      { id: 3, name: 'Yeast', cost: 6.00 }
+    ],
+    nextId: 4,
+    batchVolume: 5,
+    volumeUnit: 'gallons',
+    lossPct: 10,
+    benchmarkPrice: 12.00,
+    batchesPerYear: 6,
+    consumables: 0,
+    utilities: 0,
+    equipmentCost: 0,
+    equipmentLifespan: 20,
+    applyExtras: true,
+    extrasOpen: false
+  };
+
+  var els = {};
+  var ids = ['ingredientList', 'addRow', 'batchTotal', 'batchVolume', 'volumeUnit',
+    'lossPct', 'lossRead', 'drinkablePints', 'bottleCount', 'sixPackCount',
+    'benchmarkPrice', 'barHome', 'barBench', 'homeSixLabel', 'benchSixLabel',
+    'homePintLine', 'benchPintLine', 'savingsPerBatch', 'savingsPercent',
+    'batchesPerYear', 'annualSavings', 'toggleExtras', 'extrasBody', 'extrasChev',
+    'consumables', 'utilities', 'equipmentCost', 'equipmentLifespan', 'applyExtras',
+    'breakEven', 'calcForm'];
+
+  for (var i = 0; i < ids.length; i++) {
+    els[ids[i]] = document.getElementById(ids[i]);
+  }
+
+  function readNum(el, fallback) {
+    if (!el) { return fallback; }
+    var v = parseFloat(el.value);
+    if (!isFinite(v) || v < 0) { return fallback; }
+    return v;
+  }
+
+  function fmtMoney(n) {
+    if (!isFinite(n)) { return DASH; }
+    var neg = n < 0;
+    var out = '$' + Math.abs(n).toFixed(2);
+    return neg ? '-' + out : out;
+  }
+
+  function fmtNum(n) {
+    if (!isFinite(n)) { return DASH; }
+    var r = Math.round(n * 10) / 10;
+    return (r % 1 === 0) ? String(r) : r.toFixed(1);
+  }
+
+  function save() {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+    } catch (err) {
+      return;
+    }
+  }
+
+  function load() {
+    var raw = null;
+    try {
+      raw = window.localStorage.getItem(STORAGE_KEY);
+    } catch (err) {
+      return;
+    }
+    if (!raw) { return; }
+    var data = null;
+    try {
+      data = JSON.parse(raw);
+    } catch (err2) {
+      return;
+    }
+    if (!data || typeof data !== 'object') { return; }
+
+    if (Object.prototype.toString.call(data.rows) === '[object Array]' && data.rows.length > 0) {
+      var clean = [];
+      var maxId = 0;
+      for (var i = 0; i < data.rows.length; i++) {
+        var r = data.rows[i];
+        if (!r || typeof r !== 'object') { continue; }
+        var id = parseInt(r.id, 10);
+        if (!isFinite(id) || id <= 0) { id = clean.length + 1; }
+        var cost = parseFloat(r.cost);
+        if (!isFinite(cost) || cost < 0) { cost = 0; }
+        clean.push({ id: id, name: typeof r.name === 'string' ? r.name : '', cost: cost });
+        if (id > maxId) { maxId = id; }
+      }
+      if (clean.length > 0) {
+        STATE.rows = clean;
+        STATE.nextId = maxId + 1;
+      }
+    }
+
+    var numKeys = ['batchVolume', 'lossPct', 'benchmarkPrice', 'batchesPerYear',
+      'consumables', 'utilities', 'equipmentCost', 'equipmentLifespan'];
+    for (var k = 0; k < numKeys.length; k++) {
+      var key = numKeys[k];
+      var val = parseFloat(data[key]);
+      if (isFinite(val) && val >= 0) { STATE[key] = val; }
+    }
+    if (data.volumeUnit === 'pints' || data.volumeUnit === 'gallons') {
+      STATE.volumeUnit = data.volumeUnit;
+    }
+    STATE.applyExtras = data.applyExtras !== false;
+    STATE.extrasOpen = data.extrasOpen === true;
+  }
+
+  function renderRows() {
+    var list = els.ingredientList;
+    while (list.firstChild) {
+      list.removeChild(list.firstChild);
+    }
+    var only = STATE.rows.length <= 1;
+
+    for (var i = 0; i < STATE.rows.length; i++) {
+      var r = STATE.rows[i];
+
+      var row = document.createElement('div');
+      row.className = 'ing-row';
+      row.setAttribute('data-id', String(r.id));
+
+      var name = document.createElement('input');
+      name.type = 'text';
+      name.className = 'row-name';
+      name.value = r.name;
+      name.placeholder = 'Ingredient';
+      name.setAttribute('aria-label', 'Ingredient name');
+      row.appendChild(name);
+
+      var wrap = document.createElement('div');
+      wrap.className = 'cost-wrap';
+      var sign = document.createElement('span');
+      sign.textContent = '$';
+      wrap.appendChild(sign);
+      var cost = document.createElement('input');
+      cost.type = 'number';
+      cost.className = 'row-cost';
+      cost.setAttribute('inputmode', 'decimal');
+      cost.step = '0.01';
+      cost.min = '0';
+      cost.value = r.cost.toFixed(2);
+      cost.setAttribute('aria-label', 'Ingredient cost');
+      wrap.appendChild(cost);
+      row.appendChild(wrap);
+
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'btn btn-remove row-remove';
+      del.textContent = 'x';
+      del.setAttribute('aria-label', 'Remove ingredient');
+      del.disabled = only;
+      row.appendChild(del);
+
+      list.appendChild(row);
+    }
+  }
+
+  function syncRows() {
+    var rows = els.ingredientList.getElementsByClassName('ing-row');
+    var next = [];
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var id = parseInt(row.getAttribute('data-id'), 10);
+      if (!isFinite(id)) { id = i + 1; }
+      var nameEl = row.getElementsByClassName('row-name')[0];
+      var costEl = row.getElementsByClassName('row-cost')[0];
+      next.push({
+        id: id,
+        name: nameEl ? nameEl.value : '',
+        cost: readNum(costEl, 0)
+      });
+    }
+    if (next.length > 0) { STATE.rows = next; }
+  }
+
+  function setActivePresets(price) {
+    var btns = els.calcForm.getElementsByClassName('preset');
+    for (var i = 0; i < btns.length; i++) {
+      var p = parseFloat(btns[i].getAttribute('data-price'));
+      if (isFinite(p) && Math.abs(p - price) < 0.005) {
+        btns[i].className = 'btn preset active';
+      } else {
+        btns[i].className = 'btn preset';
+      }
+    }
+  }
+
+  function applyClass(el, value) {
+    if (!isFinite(value) || value === 0) {
+      el.className = el.className.replace(/\s*(pos|neg)/g, '');
+      return;
+    }
+    var base = el.className.replace(/\s*(pos|neg)/g, '');
+    el.className = base + (value > 0 ? ' pos' : ' neg');
+  }
+
+  function recalculate() {
+    syncRows();
+
+    var ingredientsTotal = 0;
+    for (var i = 0; i < STATE.rows.length; i++) {
+      ingredientsTotal += STATE.rows[i].cost;
+    }
+    els.batchTotal.textContent = fmtMoney(ingredientsTotal);
+
+    STATE.batchVolume = readNum(els.batchVolume, 0);
+    STATE.volumeUnit = (els.volumeUnit.value === 'pints') ? 'pints' : 'gallons';
+    STATE.lossPct = Math.min(40, Math.max(0, readNum(els.lossPct, 0)));
+    STATE.benchmarkPrice = readNum(els.benchmarkPrice, 0);
+    STATE.batchesPerYear = Math.floor(readNum(els.batchesPerYear, 0));
+    STATE.consumables = readNum(els.consumables, 0);
+    STATE.utilities = readNum(els.utilities, 0);
+    STATE.equipmentCost = readNum(els.equipmentCost, 0);
+    STATE.equipmentLifespan = readNum(els.equipmentLifespan, 0);
+    STATE.applyExtras = els.applyExtras.checked;
+
+    els.lossRead.textContent = fmtNum(STATE.lossPct) + '%';
+
+    var perBatchEquip = (STATE.equipmentLifespan > 0)
+      ? (STATE.equipmentCost / STATE.equipmentLifespan)
+      : 0;
+    var extras = STATE.applyExtras
+      ? (STATE.consumables + STATE.utilities + perBatchEquip)
+      : 0;
+    var batchCost = ingredientsTotal + extras;
+
+    var rawPints = (STATE.volumeUnit === 'gallons')
+      ? STATE.batchVolume * PINTS_PER_GALLON
+      : STATE.batchVolume;
+    var drinkable = rawPints * (1 - (STATE.lossPct / 100));
+    if (!isFinite(drinkable) || drinkable < 0) { drinkable = 0; }
+
+    var bottles = Math.floor((drinkable * OZ_PER_PINT) / OZ_PER_BOTTLE);
+    var sixPacks = bottles / BOTTLES_PER_SIX;
+
+    els.drinkablePints.textContent = fmtNum(drinkable);
+    els.bottleCount.textContent = String(bottles);
+    els.sixPackCount.textContent = fmtNum(sixPacks);
+
+    var haveYield = (drinkable > 0 && sixPacks > 0);
+    var homeSix = haveYield ? (batchCost / sixPacks) : null;
+    var homePint = (drinkable > 0) ? (batchCost / drinkable) : null;
+    var benchSix = STATE.benchmarkPrice;
+    var benchPint = (STATE.benchmarkPrice > 0)
+      ? ((STATE.benchmarkPrice / BOTTLES_PER_SIX) * (OZ_PER_PINT / OZ_PER_BOTTLE))
+      : null;
+
+    els.homeSixLabel.textContent = (homeSix === null) ? DASH : fmtMoney(homeSix);
+    els.benchSixLabel.textContent = (benchSix > 0) ? fmtMoney(benchSix) : DASH;
+    els.homePintLine.textContent = 'Per pint: ' + ((homePint === null) ? DASH : fmtMoney(homePint));
+    els.benchPintLine.textContent = 'Per pint: ' + ((benchPint === null) ? DASH : fmtMoney(benchPint));
+
+    var scaleMax = Math.max(homeSix === null ? 0 : homeSix, benchSix);
+    if (!isFinite(scaleMax) || scaleMax <= 0) {
+      els.barHome.style.width = '0%';
+      els.barBench.style.width = '0%';
+    } else {
+      els.barHome.style.width = ((homeSix === null ? 0 : homeSix) / scaleMax * 100).toFixed(2) + '%';
+      els.barBench.style.width = (benchSix / scaleMax * 100).toFixed(2) + '%';
+    }
+
+    var savings = null;
+    var benchTotal = benchSix * sixPacks;
+    if (haveYield && benchSix > 0) {
+      savings = benchTotal - batchCost;
+    }
+
+    if (savings === null) {
+      els.savingsPerBatch.textContent = DASH;
+      els.savingsPercent.textContent = 'Add a yield and a shelf price to compare.';
+      els.annualSavings.textContent = DASH;
+      applyClass(els.savingsPerBatch, 0);
+      applyClass(els.annualSavings, 0);
+    } else {
+      els.savingsPerBatch.textContent = fmtMoney(savings);
+      applyClass(els.savingsPerBatch, savings);
+      var pct = (benchTotal > 0) ? (savings / benchTotal * 100) : null;
+      if (pct === null) {
+        els.savingsPercent.textContent = DASH;
+      } else if (pct >= 0) {
+        els.savingsPercent.textContent = fmtNum(pct) + '% cheaper than the shelf';
+      } else {
+        els.savingsPercent.textContent = fmtNum(Math.abs(pct)) + '% more than the shelf';
+      }
+      var annual = savings * STATE.batchesPerYear;
+      els.annualSavings.textContent = fmtMoney(annual);
+      applyClass(els.annualSavings, annual);
+    }
+
+    if (savings === null || savings <= 0) {
+      els.breakEven.textContent = DASH;
+    } else if (STATE.equipmentCost <= 0) {
+      els.breakEven.textContent = '0 batches';
+    } else {
+      var batches = Math.ceil(STATE.equipmentCost / savings);
+      els.breakEven.textContent = String(batches) + (batches === 1 ? ' batch' : ' batches');
+    }
+
+    setActivePresets(STATE.benchmarkPrice);
+    save();
+  }
+
+  function addRow() {
+    syncRows();
+    STATE.rows.push({ id: STATE.nextId, name: '', cost: 0 });
+    STATE.nextId += 1;
+    renderRows();
+    recalculate();
+  }
+
+  function removeRow(row) {
+    if (STATE.rows.length <= 1) { return; }
+    syncRows();
+    var id = parseInt(row.getAttribute('data-id'), 10);
+    var next = [];
+    for (var i = 0; i < STATE.rows.length; i++) {
+      if (STATE.rows[i].id !== id) { next.push(STATE.rows[i]); }
+    }
+    STATE.rows = next.length > 0 ? next : [{ id: STATE.nextId++, name: '', cost: 0 }];
+    if (row.parentNode) { row.parentNode.removeChild(row); }
+    renderRows();
+    recalculate();
+  }
+
+  function toggleExtras() {
+    STATE.extrasOpen = !STATE.extrasOpen;
+    paintExtras();
+    recalculate();
+  }
+
+  function paintExtras() {
+    els.extrasBody.className = STATE.extrasOpen ? 'open' : '';
+    els.toggleExtras.setAttribute('aria-expanded', STATE.extrasOpen ? 'true' : 'false');
+    els.extrasChev.textContent = STATE.extrasOpen ? 'HIDE' : 'SHOW';
+  }
+
+  els.calcForm.addEventListener('input', recalculate);
+  els.calcForm.addEventListener('change', recalculate);
+
+  els.calcForm.addEventListener('click', function (evt) {
+    var t = evt.target;
+    if (!t || !t.className || typeof t.className !== 'string') { return; }
+
+    if (t.id === 'addRow') {
+      addRow();
+      return;
+    }
+    if (t.className.indexOf('row-remove') !== -1) {
+      var row = t.parentNode;
+      if (row) { removeRow(row); }
+      return;
+    }
+    if (t.className.indexOf('preset') !== -1) {
+      var p = parseFloat(t.getAttribute('data-price'));
+      if (isFinite(p)) {
+        els.benchmarkPrice.value = p.toFixed(2);
+        recalculate();
+      }
+      return;
+    }
+  });
+
+  els.toggleExtras.addEventListener('click', toggleExtras);
+
+  function paintFromState() {
+    els.batchVolume.value = String(STATE.batchVolume);
+    els.volumeUnit.value = STATE.volumeUnit;
+    els.lossPct.value = String(STATE.lossPct);
+    els.benchmarkPrice.value = STATE.benchmarkPrice.toFixed(2);
+    els.batchesPerYear.value = String(STATE.batchesPerYear);
+    els.consumables.value = STATE.consumables.toFixed(2);
+    els.utilities.value = STATE.utilities.toFixed(2);
+    els.equipmentCost.value = STATE.equipmentCost.toFixed(2);
+    els.equipmentLifespan.value = String(STATE.equipmentLifespan);
+    els.applyExtras.checked = STATE.applyExtras;
+  }
+
+  load();
+  paintFromState();
+  paintExtras();
+  renderRows();
+  recalculate();
+})();
+</script>
+
+</body>
+</html>
